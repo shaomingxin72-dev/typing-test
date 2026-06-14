@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打字速度测试 - 在线测速 Typing Speed Test</title>
+    <meta name="description" content="免费在线打字速度测试工具，实时检测WPM打字速度和准确率。支持30秒、60秒、120秒多种模式，提升你的打字技能。">
+    <meta name="keywords" content="打字速度测试,打字测速,typing test,WPM测试,打字练习,typing speed test,在线打字测试">
+    <meta name="author" content="Typing Speed Test">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="打字速度测试 - 在线测速 Typing Speed Test">
+    <meta property="og:description" content="免费在线打字速度测试工具，实时检测WPM打字速度和准确率。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-domain.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="打字速度测试 - 在线测速">
+    <meta name="twitter:description" content="免费在线打字速度测试，实时WPM和准确率检测。">
+    <link rel="canonical" href="https://your-domain.com">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌨️</text></svg>">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "打字速度测试",
+        "description": "免费在线打字速度测试工具，实时检测WPM打字速度和准确率",
+        "url": "https://your-domain.com",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "All",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+    }
+    </script>
+    <!-- Google AdSense - 将 ca-pub-xxx 替换为你的 AdSense ID -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxx" crossorigin="anonymous"></script> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #8888aa;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 10px 24px;
+            border: 2px solid #3a7bd5;
+            background: transparent;
+            color: #3a7bd5;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .controls button:hover,
+        .controls button.active {
+            background: #3a7bd5;
+            color: #fff;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 24px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d2ff;
+        }
+
+        .stat .label {
+            font-size: 0.85rem;
+            color: #8888aa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .text-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            line-height: 2;
+            letter-spacing: 0.5px;
+            min-height: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            user-select: none;
+        }
+
+        .text-display .char {
+            transition: color 0.1s;
+            position: relative;
+        }
+
+        .text-display .char.correct {
+            color: #4ade80;
+        }
+
+        .text-display .char.incorrect {
+            color: #f87171;
+            text-decoration: underline;
+        }
+
+        .text-display .char.current {
+            color: #fff;
+        }
+
+        .text-display .char.current::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 100%;
+            height: 2px;
+            background: #00d2ff;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .text-display .char.pending {
+            color: #555;
+        }
+
+        #input-area {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        #input-area:focus {
+            border-color: #3a7bd5;
+        }
+
+        #input-area:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .start-btn {
+            display: block;
+            margin: 0 auto 30px;
+            padding: 14px 48px;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(58, 123, 213, 0.4);
+        }
+
+        .result-panel {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .result-panel h2 {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            color: #00d2ff;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .result-item .num {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .result-item .desc {
+            font-size: 0.85rem;
+            color: #8888aa;
+            margin-top: 4px;
+        }
+
+        .result-item.wpm .num { color: #00d2ff; }
+        .result-item.accuracy .num { color: #4ade80; }
+        .result-item.correct-count .num { color: #fbbf24; }
+        .result-item.error-count .num { color: #f87171; }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .stats-bar { gap: 20px; }
+            .stat .value { font-size: 1.8rem; }
+            .text-display { font-size: 1.1rem; padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>打字速度测试</h1>
+        <p>测试你的打字速度和准确率</p>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <button class="active" data-time="30">30秒</button>
+            <button data-time="60">60秒</button>
+            <button data-time="120">120秒</button>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="value" id="wpm">0</div>
+                <div class="label">WPM</div>
+            </div>
+            <div class="stat">
+                <div class="value" id="accuracy">100%</div>
+                <div class="label">准确率</div>
+            </div>
+            <div class="stat">
+                <div class="value" id="timer">30</div>
+                <div class="label">秒</div>
+            </div>
+        </div>
+
+        <div class="text-display" id="text-display"></div>
+
+        <input type="text" id="input-area" placeholder="点击开始按钮或直接输入开始测试..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+        <button class="start-btn" id="start-btn">开始测试</button>
+
+        <div class="result-panel" id="result-panel">
+            <h2>测试结果</h2>
+            <div class="result-grid">
+                <div class="result-item wpm">
+                    <div class="num" id="result-wpm">0</div>
+                    <div class="desc">WPM (每分钟字数)</div>
+                </div>
+                <div class="result-item accuracy">
+                    <div class="num" id="result-accuracy">0%</div>
+                    <div class="desc">准确率</div>
+                </div>
+                <div class="result-item correct-count">
+                    <div class="num" id="result-correct">0</div>
+                    <div class="desc">正确字符</div>
+                </div>
+                <div class="result-item error-count">
+                    <div class="num" id="result-errors">0</div>
+                    <div class="desc">错误字符</div>
+                </div>
+            </div>
+            <button class="start-btn" id="restart-btn">再来一次</button>
+        </div>
+    </div>
+
+    <!-- 广告位：页面底部 -->
+    <div class="ad-container" style="max-width:728px;margin:0 auto 20px;text-align:center;">
+        <!-- Google AdSense 广告位 - 替换为你的广告单元 -->
+        <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-xxx" data-ad-slot="xxx" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
+        <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+        <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.1);border-radius:8px;padding:20px;color:#555;font-size:0.85rem;">广告位 (接入 AdSense 后显示)</div>
+    </div>
+
+    <footer>
+        <p style="margin-bottom:8px;">打字速度测试 &copy; 2026</p>
+        <p style="font-size:0.75rem;color:#444;">本站使用 Cookie 和本地存储提升体验</p>
+    </footer>
+
+    <script>
+        const textSamples = [
+            "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump. The five boxing wizards jump quickly.",
+            "Programming is the art of telling another human being what one wants the computer to do. Software is a great combination of artistry and engineering.",
+            "In the middle of difficulty lies opportunity. The only way to do great work is to love what you do. Stay hungry, stay foolish. Think different.",
+            "Technology is best when it brings people together. Innovation distinguishes between a leader and a follower. Simplicity is the ultimate sophistication.",
+            "Life is what happens when you are busy making other plans. The future belongs to those who believe in the beauty of their dreams. Keep going.",
+            "Every great developer you know got there by solving problems they were unqualified to solve until they actually did it. Code is poetry in motion.",
+            "The best error message is the one that never shows up. First solve the problem then write the code. Make it work make it right make it fast.",
+            "Debugging is twice as hard as writing the code in the first place. Therefore if you write the code as cleverly as possible you are by definition not smart enough to debug it.",
+            "Any fool can write code that a computer can understand. Good programmers write code that humans can understand. Clean code always looks like it was written by someone who cares.",
+            "Experience is the name everyone gives to their mistakes. The only way to learn a new programming language is by writing programs in it. Practice makes perfect."
+        ];
+
+        const textDisplay = document.getElementById('text-display');
+        const inputArea = document.getElementById('input-area');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const resultPanel = document.getElementById('result-panel');
+        const wpmDisplay = document.getElementById('wpm');
+        const accuracyDisplay = document.getElementById('accuracy');
+        const timerDisplay = document.getElementById('timer');
+        const controlBtns = document.querySelectorAll('.controls button');
+
+        let currentText = '';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let errorCount = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let timeLimit = 30;
+        let timeLeft = 30;
+        let isRunning = false;
+        let isFinished = false;
+
+        function getRandomText() {
+            return textSamples[Math.floor(Math.random() * textSamples.length)];
+        }
+
+        function renderText() {
+            textDisplay.innerHTML = '';
+            for (let i = 0; i < currentText.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char pending';
+                span.textContent = currentText[i];
+                if (i === 0) span.className = 'char current';
+                textDisplay.appendChild(span);
+            }
+        }
+
+        function updateDisplay() {
+            const chars = textDisplay.querySelectorAll('.char');
+            chars.forEach((char, i) => {
+                char.className = 'char';
+                if (i < currentIndex) {
+                    const inputChar = inputArea.value[i];
+                    char.className = inputChar === currentText[i] ? 'char correct' : 'char incorrect';
+                } else if (i === currentIndex) {
+                    char.className = 'char current';
+                } else {
+                    char.className = 'char pending';
+                }
+            });
+
+            const totalTyped = correctCount + errorCount;
+            const acc = totalTyped > 0 ? Math.round((correctCount / totalTyped) * 100) : 100;
+            accuracyDisplay.textContent = acc + '%';
+
+            if (startTime) {
+                const elapsed = (Date.now() - startTime) / 1000 / 60;
+                const wpm = elapsed > 0 ? Math.round((correctCount / 5) / elapsed) : 0;
+                wpmDisplay.textContent = wpm;
+            }
+        }
+
+        function startTest() {
+            currentText = getRandomText();
+            currentIndex = 0;
+            correctCount = 0;
+            errorCount = 0;
+            startTime = null;
+            timeLeft = timeLimit;
+            isRunning = false;
+            isFinished = false;
+
+            clearInterval(timerInterval);
+            timerDisplay.textContent = timeLimit;
+            wpmDisplay.textContent = '0';
+            accuracyDisplay.textContent = '100%';
+
+            resultPanel.style.display = 'none';
+            inputArea.disabled = false;
+            inputArea.value = '';
+            inputArea.focus();
+            startBtn.style.display = 'none';
+
+            renderText();
+        }
+
+        function endTest() {
+            isRunning = false;
+            isFinished = true;
+            clearInterval(timerInterval);
+            inputArea.disabled = true;
+
+            const elapsed = (Date.now() - startTime) / 1000 / 60;
+            const wpm = elapsed > 0 ? Math.round((correctCount / 5) / elapsed) : 0;
+            const totalTyped = correctCount + errorCount;
+            const acc = totalTyped > 0 ? Math.round((correctCount / totalTyped) * 100) : 100;
+
+            document.getElementById('result-wpm').textContent = wpm;
+            document.getElementById('result-accuracy').textContent = acc + '%';
+            document.getElementById('result-correct').textContent = correctCount;
+            document.getElementById('result-errors').textContent = errorCount;
+
+            resultPanel.style.display = 'block';
+            startBtn.style.display = 'block';
+            startBtn.textContent = '再来一次';
+        }
+
+        inputArea.addEventListener('input', (e) => {
+            if (isFinished) return;
+
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        endTest();
+                    }
+                }, 1000);
+            }
+
+            const val = inputArea.value;
+            currentIndex = val.length;
+
+            correctCount = 0;
+            errorCount = 0;
+            for (let i = 0; i < val.length; i++) {
+                if (val[i] === currentText[i]) {
+                    correctCount++;
+                } else {
+                    errorCount++;
+                }
+            }
+
+            updateDisplay();
+
+            if (currentIndex >= currentText.length) {
+                endTest();
+            }
+        });
+
+        inputArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                startTest();
+            }
+        });
+
+        startBtn.addEventListener('click', startTest);
+        restartBtn.addEventListener('click', startTest);
+
+        controlBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                controlBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                timeLimit = parseInt(btn.dataset.time);
+                startTest();
+            });
+        });
+
+        startTest();
+    </script>
+</body>
+</html>
