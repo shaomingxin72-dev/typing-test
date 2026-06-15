@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间戳转换工具 - 在线Unix时间戳转换</title>
+    <meta name="description" content="免费在线时间戳转换工具，Unix时间戳与日期时间互转，支持秒和毫秒。">
+    <meta name="keywords" content="时间戳转换,Unix时间戳,timestamp converter,时间戳在线转换">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/tools/timestamp.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>时间戳转换</h1>
+        <p>Unix 时间戳与日期时间互转</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="../index.html">首页</a> / 时间戳转换</div>
+
+        <div class="section">
+            <label>当前时间戳</label>
+            <div class="result-box" style="text-align:center;font-size:1.3rem;">
+                <span id="now-ts"></span>
+                <span style="color:#8888aa;font-size:0.85rem;margin-left:10px;" id="now-date"></span>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top:24px;">
+            <label for="ts-input">时间戳 → 日期</label>
+            <div style="display:flex;gap:10px;">
+                <input type="text" id="ts-input" placeholder="输入时间戳，例如 1700000000">
+                <button class="btn" onclick="tsToDate()" style="white-space:nowrap;">转换</button>
+            </div>
+            <div class="result-box" id="ts-result" style="margin-top:10px;display:none;"></div>
+        </div>
+
+        <div class="section" style="margin-top:24px;">
+            <label for="date-input">日期 → 时间戳</label>
+            <input type="datetime-local" id="date-input" step="1">
+            <div class="btn-group">
+                <button class="btn" onclick="dateToTs()">转换为时间戳</button>
+            </div>
+            <div class="result-box" id="date-result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="../index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        function updateNow() {
+            const now = Math.floor(Date.now() / 1000);
+            document.getElementById('now-ts').textContent = now;
+            document.getElementById('now-date').textContent = new Date().toLocaleString('zh-CN');
+        }
+        setInterval(updateNow, 1000);
+        updateNow();
+
+        // Set default datetime
+        document.getElementById('date-input').value = new Date().toISOString().slice(0, 19);
+
+        function tsToDate() {
+            const val = document.getElementById('ts-input').value.trim();
+            if (!val) return;
+            let ts = parseInt(val);
+            if (val.length <= 10) ts *= 1000; // seconds to ms
+            const d = new Date(ts);
+            if (isNaN(d.getTime())) { alert('无效的时间戳'); return; }
+            const el = document.getElementById('ts-result');
+            el.style.display = 'block';
+            el.innerHTML =
+                '本地时间: ' + d.toLocaleString('zh-CN') + '<br>' +
+                'UTC 时间: ' + d.toUTCString() + '<br>' +
+                'ISO 格式: ' + d.toISOString();
+        }
+
+        function dateToTs() {
+            const val = document.getElementById('date-input').value;
+            if (!val) return;
+            const d = new Date(val);
+            const el = document.getElementById('date-result');
+            el.style.display = 'block';
+            el.innerHTML =
+                '秒级时间戳: ' + Math.floor(d.getTime() / 1000) + '<br>' +
+                '毫秒时间戳: ' + d.getTime();
+        }
+    </script>
+</body>
+</html>

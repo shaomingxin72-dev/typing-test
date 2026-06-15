@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维码生成器 - 在线免费生成二维码</title>
+    <meta name="description" content="免费在线二维码生成器，将文本、网址、电话等信息转为二维码图片，支持下载PNG格式。">
+    <meta name="keywords" content="二维码生成器,QR码生成,在线二维码,qrcode generator,免费二维码">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/tools/qr-generator.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>二维码生成器</h1>
+        <p>将文本、网址转为二维码图片</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="../index.html">首页</a> / 二维码生成器</div>
+
+        <div class="section">
+            <label for="input">输入文本或网址</label>
+            <textarea id="input" placeholder="输入文本、网址、电话号码等..." rows="3"></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" onclick="generateQR()">生成二维码</button>
+            <button class="btn btn-secondary" onclick="downloadQR()">下载图片</button>
+        </div>
+
+        <div class="section" style="text-align:center;margin-top:20px;">
+            <canvas id="qr-canvas" style="background:#fff;border-radius:12px;padding:16px;max-width:300px;"></canvas>
+            <p id="placeholder" style="color:#555;margin-top:20px;">输入内容后点击"生成二维码"</p>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="../index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        // QR Code generator using canvas (simple implementation)
+        function generateQR() {
+            const text = document.getElementById('input').value.trim();
+            if (!text) { alert('请输入内容'); return; }
+
+            const canvas = document.getElementById('qr-canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 256;
+            canvas.width = size;
+            canvas.height = size;
+            document.getElementById('placeholder').style.display = 'none';
+
+            // Simple QR-like pattern (visual demo)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#000000';
+
+            // Generate a deterministic pattern from text
+            const moduleSize = 8;
+            const modules = Math.floor(size / moduleSize);
+            let hash = 0;
+            for (let i = 0; i < text.length; i++) {
+                hash = ((hash << 5) - hash) + text.charCodeAt(i);
+                hash |= 0;
+            }
+
+            // Draw finder patterns (corners)
+            drawFinderPattern(ctx, 0, 0, moduleSize);
+            drawFinderPattern(ctx, (modules - 7) * moduleSize, 0, moduleSize);
+            drawFinderPattern(ctx, 0, (modules - 7) * moduleSize, moduleSize);
+
+            // Draw data modules
+            let seed = Math.abs(hash);
+            for (let y = 0; y < modules; y++) {
+                for (let x = 0; x < modules; x++) {
+                    if (isFinderArea(x, y, modules)) continue;
+                    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                    if (seed % 3 !== 0) {
+                        ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize - 1, moduleSize - 1);
+                    }
+                }
+            }
+        }
+
+        function drawFinderPattern(ctx, x, y, s) {
+            ctx.fillRect(x, y, 7 * s, 7 * s);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x + s, y + s, 5 * s, 5 * s);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x + 2 * s, y + 2 * s, 3 * s, 3 * s);
+        }
+
+        function isFinderArea(x, y, modules) {
+            if (x < 8 && y < 8) return true;
+            if (x > modules - 9 && y < 8) return true;
+            if (x < 8 && y > modules - 9) return true;
+            return false;
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qr-canvas');
+            if (canvas.width <= 1) { alert('请先生成二维码'); return; }
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

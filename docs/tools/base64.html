@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 编解码工具 - 在线 Base64 转换</title>
+    <meta name="description" content="免费在线Base64编解码工具，支持文本和文件的Base64编码与解码转换。">
+    <meta name="keywords" content="Base64编码,Base64解码,Base64转换,base64 encode decode,在线Base64">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/tools/base64.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>Base64 编解码</h1>
+        <p>文本与 Base64 互转工具</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="../index.html">首页</a> / Base64 编解码</div>
+
+        <div class="section">
+            <label for="input">输入文本</label>
+            <textarea id="input" placeholder="输入要编码或解码的文本..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" onclick="encode()">编码 (文本→Base64)</button>
+            <button class="btn btn-secondary" onclick="decode()">解码 (Base64→文本)</button>
+            <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+        </div>
+
+        <div class="section">
+            <label>输出结果</label>
+            <div class="result-box" id="output">
+                <button class="copy-btn" onclick="copyResult()">复制</button>
+                <span id="output-text">等待输入...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="../index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        const input = document.getElementById('input');
+        const outputText = document.getElementById('output-text');
+
+        function encode() {
+            try {
+                outputText.textContent = btoa(unescape(encodeURIComponent(input.value)));
+            } catch (e) {
+                outputText.textContent = '编码错误: ' + e.message;
+            }
+        }
+
+        function decode() {
+            try {
+                outputText.textContent = decodeURIComponent(escape(atob(input.value)));
+            } catch (e) {
+                outputText.textContent = '解码错误: 无效的 Base64 字符串';
+            }
+        }
+
+        function clearAll() {
+            input.value = '';
+            outputText.textContent = '等待输入...';
+        }
+
+        function copyResult() {
+            const text = outputText.textContent;
+            if (text && text !== '等待输入...') {
+                navigator.clipboard.writeText(text);
+                showToast('已复制到剪贴板');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2000);
+        }
+    </script>
+</body>
+</html>

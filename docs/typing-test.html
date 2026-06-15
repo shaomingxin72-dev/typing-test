@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打字速度测试 - 在线测速 Typing Speed Test</title>
+    <meta name="description" content="免费在线打字速度测试工具，实时检测WPM打字速度和准确率。支持30秒、60秒、120秒多种模式，提升你的打字技能。">
+    <meta name="keywords" content="打字速度测试,打字测速,typing test,WPM测试,打字练习,typing speed test,在线打字测试">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/typing-test.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌨️</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>打字速度测试</h1>
+        <p>测试你的打字速度和准确率</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="index.html">首页</a> / 打字速度测试</div>
+
+        <div class="controls">
+            <button class="active" data-time="30">30秒</button>
+            <button data-time="60">60秒</button>
+            <button data-time="120">120秒</button>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="value" id="wpm">0</div>
+                <div class="label">WPM</div>
+            </div>
+            <div class="stat">
+                <div class="value" id="accuracy">100%</div>
+                <div class="label">准确率</div>
+            </div>
+            <div class="stat">
+                <div class="value" id="timer">30</div>
+                <div class="label">秒</div>
+            </div>
+        </div>
+
+        <div class="text-display" id="text-display"></div>
+
+        <input type="text" id="input-area" placeholder="点击开始按钮或直接输入开始测试..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+        <button class="btn" id="start-btn" style="display:block;margin:0 auto 30px;">开始测试</button>
+
+        <div class="result-panel" id="result-panel">
+            <h2>测试结果</h2>
+            <div class="result-grid">
+                <div class="result-item wpm">
+                    <div class="num" id="result-wpm">0</div>
+                    <div class="desc">WPM (每分钟字数)</div>
+                </div>
+                <div class="result-item accuracy">
+                    <div class="num" id="result-accuracy">0%</div>
+                    <div class="desc">准确率</div>
+                </div>
+                <div class="result-item correct-count">
+                    <div class="num" id="result-correct">0</div>
+                    <div class="desc">正确字符</div>
+                </div>
+                <div class="result-item error-count">
+                    <div class="num" id="result-errors">0</div>
+                    <div class="desc">错误字符</div>
+                </div>
+            </div>
+            <button class="btn" id="restart-btn">再来一次</button>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        const textSamples = [
+            "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump.",
+            "Programming is the art of telling another human being what one wants the computer to do. Software is a great combination of artistry and engineering.",
+            "In the middle of difficulty lies opportunity. The only way to do great work is to love what you do. Stay hungry, stay foolish.",
+            "Technology is best when it brings people together. Innovation distinguishes between a leader and a follower. Simplicity is the ultimate sophistication.",
+            "Life is what happens when you are busy making other plans. The future belongs to those who believe in the beauty of their dreams.",
+            "Every great developer you know got there by solving problems they were unqualified to solve until they actually did it.",
+            "The best error message is the one that never shows up. First solve the problem then write the code. Make it work make it right make it fast.",
+            "Debugging is twice as hard as writing the code in the first place. Good programmers write code that humans can understand.",
+            "Any fool can write code that a computer can understand. Clean code always looks like it was written by someone who cares.",
+            "Experience is the name everyone gives to their mistakes. The only way to learn a new programming language is by writing programs in it."
+        ];
+
+        const textDisplay = document.getElementById('text-display');
+        const inputArea = document.getElementById('input-area');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const resultPanel = document.getElementById('result-panel');
+        const wpmDisplay = document.getElementById('wpm');
+        const accuracyDisplay = document.getElementById('accuracy');
+        const timerDisplay = document.getElementById('timer');
+        const controlBtns = document.querySelectorAll('.controls button');
+
+        let currentText = '';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let errorCount = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let timeLimit = 30;
+        let timeLeft = 30;
+        let isRunning = false;
+        let isFinished = false;
+
+        function getRandomText() {
+            return textSamples[Math.floor(Math.random() * textSamples.length)];
+        }
+
+        function renderText() {
+            textDisplay.innerHTML = '';
+            for (let i = 0; i < currentText.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'char pending';
+                span.textContent = currentText[i];
+                if (i === 0) span.className = 'char current';
+                textDisplay.appendChild(span);
+            }
+        }
+
+        function updateDisplay() {
+            const chars = textDisplay.querySelectorAll('.char');
+            chars.forEach((char, i) => {
+                char.className = 'char';
+                if (i < currentIndex) {
+                    const inputChar = inputArea.value[i];
+                    char.className = inputChar === currentText[i] ? 'char correct' : 'char incorrect';
+                } else if (i === currentIndex) {
+                    char.className = 'char current';
+                } else {
+                    char.className = 'char pending';
+                }
+            });
+
+            const totalTyped = correctCount + errorCount;
+            const acc = totalTyped > 0 ? Math.round((correctCount / totalTyped) * 100) : 100;
+            accuracyDisplay.textContent = acc + '%';
+
+            if (startTime) {
+                const elapsed = (Date.now() - startTime) / 1000 / 60;
+                const wpm = elapsed > 0 ? Math.round((correctCount / 5) / elapsed) : 0;
+                wpmDisplay.textContent = wpm;
+            }
+        }
+
+        function startTest() {
+            currentText = getRandomText();
+            currentIndex = 0;
+            correctCount = 0;
+            errorCount = 0;
+            startTime = null;
+            timeLeft = timeLimit;
+            isRunning = false;
+            isFinished = false;
+
+            clearInterval(timerInterval);
+            timerDisplay.textContent = timeLimit;
+            wpmDisplay.textContent = '0';
+            accuracyDisplay.textContent = '100%';
+
+            resultPanel.style.display = 'none';
+            inputArea.disabled = false;
+            inputArea.value = '';
+            inputArea.focus();
+            startBtn.style.display = 'none';
+
+            renderText();
+        }
+
+        function endTest() {
+            isRunning = false;
+            isFinished = true;
+            clearInterval(timerInterval);
+            inputArea.disabled = true;
+
+            const elapsed = (Date.now() - startTime) / 1000 / 60;
+            const wpm = elapsed > 0 ? Math.round((correctCount / 5) / elapsed) : 0;
+            const totalTyped = correctCount + errorCount;
+            const acc = totalTyped > 0 ? Math.round((correctCount / totalTyped) * 100) : 100;
+
+            document.getElementById('result-wpm').textContent = wpm;
+            document.getElementById('result-accuracy').textContent = acc + '%';
+            document.getElementById('result-correct').textContent = correctCount;
+            document.getElementById('result-errors').textContent = errorCount;
+
+            resultPanel.style.display = 'block';
+            startBtn.style.display = 'block';
+            startBtn.textContent = '再来一次';
+        }
+
+        inputArea.addEventListener('input', (e) => {
+            if (isFinished) return;
+
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+                    if (timeLeft <= 0) endTest();
+                }, 1000);
+            }
+
+            const val = inputArea.value;
+            currentIndex = val.length;
+            correctCount = 0;
+            errorCount = 0;
+            for (let i = 0; i < val.length; i++) {
+                if (val[i] === currentText[i]) correctCount++;
+                else errorCount++;
+            }
+
+            updateDisplay();
+            if (currentIndex >= currentText.length) endTest();
+        });
+
+        inputArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') { e.preventDefault(); startTest(); }
+        });
+
+        startBtn.addEventListener('click', startTest);
+        restartBtn.addEventListener('click', startTest);
+
+        controlBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                controlBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                timeLimit = parseInt(btn.dataset.time);
+                startTest();
+            });
+        });
+
+        startTest();
+    </script>
+</body>
+</html>

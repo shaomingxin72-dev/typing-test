@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL 编解码工具 - 在线 URL Encode/Decode</title>
+    <meta name="description" content="免费在线URL编解码工具，支持URL编码和解码，处理中文和特殊字符。">
+    <meta name="keywords" content="URL编码,URL解码,URL encode,URL decode,URL编解码工具">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/tools/url-encoder.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>URL 编解码</h1>
+        <p>URL 编码与解码工具</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="../index.html">首页</a> / URL 编解码</div>
+
+        <div class="section">
+            <label for="input">输入内容</label>
+            <textarea id="input" placeholder="输入URL或文本..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" onclick="encodeURL()">编码</button>
+            <button class="btn btn-secondary" onclick="decodeURL()">解码</button>
+            <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+        </div>
+
+        <div class="section">
+            <label>输出结果</label>
+            <div class="result-box" id="output">
+                <button class="copy-btn" onclick="copyResult()">复制</button>
+                <span id="output-text">等待输入...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="../index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        const input = document.getElementById('input');
+        const outputText = document.getElementById('output-text');
+
+        function encodeURL() {
+            outputText.textContent = encodeURIComponent(input.value);
+        }
+
+        function decodeURL() {
+            try {
+                outputText.textContent = decodeURIComponent(input.value);
+            } catch (e) {
+                outputText.textContent = '解码错误: 无效的URL编码';
+            }
+        }
+
+        function clearAll() {
+            input.value = '';
+            outputText.textContent = '等待输入...';
+        }
+
+        function copyResult() {
+            const text = outputText.textContent;
+            if (text && text !== '等待输入...') {
+                navigator.clipboard.writeText(text);
+                showToast('已复制到剪贴板');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2000);
+        }
+    </script>
+</body>
+</html>

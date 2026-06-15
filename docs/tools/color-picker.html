@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>颜色拾取器 - 在线颜色值转换与调色板</title>
+    <meta name="description" content="免费在线颜色拾取器，支持HEX、RGB、HSL颜色值转换，提供调色板和颜色预览。">
+    <meta name="keywords" content="颜色拾取器,颜色转换,HEX转RGB,调色板,color picker,在线颜色工具">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/tools/color-picker.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>颜色拾取器</h1>
+        <p>颜色值转换与调色板</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="../index.html">首页</a> / 颜色拾取器</div>
+
+        <div class="section" style="text-align:center;">
+            <div id="preview" style="width:200px;height:200px;border-radius:16px;margin:0 auto 20px;border:2px solid rgba(255,255,255,0.1);background:#3a7bd5;"></div>
+            <input type="color" id="picker" value="#3a7bd5" onchange="updateFromPicker()" style="width:60px;height:40px;border:none;cursor:pointer;">
+        </div>
+
+        <div class="section" style="margin-top:20px;">
+            <div style="display:grid;grid-template-columns:80px 1fr 60px;gap:10px;align-items:center;">
+                <label>HEX</label>
+                <input type="text" id="hex" value="#3a7bd5" oninput="updateFromHex()">
+                <button class="copy-btn" style="position:static;" onclick="copyVal('hex')">复制</button>
+
+                <label>RGB</label>
+                <input type="text" id="rgb" value="rgb(58, 123, 213)" oninput="updateFromRgb()">
+                <button class="copy-btn" style="position:static;" onclick="copyVal('rgb')">复制</button>
+
+                <label>HSL</label>
+                <input type="text" id="hsl" value="hsl(217, 64%, 53%)">
+                <button class="copy-btn" style="position:static;" onclick="copyVal('hsl')">复制</button>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top:24px;">
+            <label class="section-title">推荐配色</label>
+            <div id="palette" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="../index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        function updateFromPicker() {
+            const hex = document.getElementById('picker').value;
+            setHex(hex);
+        }
+
+        function updateFromHex() {
+            let hex = document.getElementById('hex').value.trim();
+            if (!hex.startsWith('#')) hex = '#' + hex;
+            if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+                setHex(hex);
+            }
+        }
+
+        function updateFromRgb() {
+            const m = document.getElementById('rgb').value.match(/(\d+)/g);
+            if (m && m.length >= 3) {
+                const hex = '#' + [m[0], m[1], m[2]].map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+                setHex(hex);
+            }
+        }
+
+        function setHex(hex) {
+            document.getElementById('hex').value = hex;
+            document.getElementById('picker').value = hex;
+            document.getElementById('preview').style.background = hex;
+
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            document.getElementById('rgb').value = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+            document.getElementById('hsl').value = rgbToHsl(r, g, b);
+            generatePalette(hex);
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) { h = s = 0; } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                    case g: h = ((b - r) / d + 2) / 6; break;
+                    case b: h = ((r - g) / d + 4) / 6; break;
+                }
+            }
+            return 'hsl(' + Math.round(h * 360) + ', ' + Math.round(s * 100) + '%, ' + Math.round(l * 100) + '%)';
+        }
+
+        function generatePalette(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            const colors = [];
+            for (let i = 0; i < 8; i++) {
+                const factor = 0.3 + (i / 7) * 0.7;
+                const nr = Math.round(r * factor);
+                const ng = Math.round(g * factor);
+                const nb = Math.round(b * factor);
+                colors.push('#' + [nr, ng, nb].map(x => x.toString(16).padStart(2, '0')).join(''));
+            }
+            const container = document.getElementById('palette');
+            container.innerHTML = colors.map(c =>
+                '<div onclick="navigator.clipboard.writeText(\'' + c + '\');showToast(\'已复制 ' + c + '\')" ' +
+                'style="width:50px;height:50px;border-radius:8px;background:' + c + ';cursor:pointer;border:1px solid rgba(255,255,255,0.1);" ' +
+                'title="' + c + '"></div>'
+            ).join('');
+        }
+
+        function copyVal(id) {
+            navigator.clipboard.writeText(document.getElementById(id).value);
+            showToast('已复制');
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2000);
+        }
+
+        generatePalette('#3a7bd5');
+    </script>
+</body>
+</html>

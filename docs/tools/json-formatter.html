@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON 格式化工具 - 在线 JSON 美化压缩校验</title>
+    <meta name="description" content="免费在线JSON格式化工具，支持JSON美化、压缩、校验。快速格式化JSON数据，方便阅读和调试。">
+    <meta name="keywords" content="JSON格式化,JSON美化,JSON压缩,JSON校验,JSON formatter,在线JSON工具">
+    <link rel="canonical" href="https://shaomingxin72-dev.github.io/typing-test/tools/json-formatter.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>{ }</text></svg>">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>JSON 格式化</h1>
+        <p>在线 JSON 美化、压缩、校验工具</p>
+    </header>
+
+    <div class="tool-page">
+        <div class="breadcrumb"><a href="../index.html">首页</a> / JSON 格式化</div>
+
+        <div class="section">
+            <label for="input">输入 JSON 数据</label>
+            <textarea id="input" placeholder='粘贴你的 JSON 数据，例如: {"name":"张三","age":25}'></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" onclick="formatJSON()">美化</button>
+            <button class="btn btn-secondary" onclick="compressJSON()">压缩</button>
+            <button class="btn btn-secondary" onclick="validateJSON()">校验</button>
+            <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+        </div>
+
+        <div id="status" style="margin:10px 0;font-size:0.9rem;"></div>
+
+        <div class="section">
+            <label>输出结果</label>
+            <div class="result-box" id="output">
+                <button class="copy-btn" onclick="copyResult()">复制</button>
+                <span id="output-text">等待输入...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ad-container">
+        <div class="ad-placeholder">广告位</div>
+    </div>
+
+    <footer class="site-footer">
+        <p><a href="../index.html">返回工具箱</a> | 在线工具箱 &copy; 2026</p>
+    </footer>
+
+    <script>
+        const input = document.getElementById('input');
+        const outputText = document.getElementById('output-text');
+        const status = document.getElementById('status');
+
+        function formatJSON() {
+            try {
+                const obj = JSON.parse(input.value);
+                outputText.textContent = JSON.stringify(obj, null, 4);
+                status.innerHTML = '<span style="color:#4ade80">✓ JSON 格式正确，已美化</span>';
+            } catch (e) {
+                status.innerHTML = '<span style="color:#f87171">✗ JSON 格式错误: ' + e.message + '</span>';
+            }
+        }
+
+        function compressJSON() {
+            try {
+                const obj = JSON.parse(input.value);
+                outputText.textContent = JSON.stringify(obj);
+                status.innerHTML = '<span style="color:#4ade80">✓ 已压缩</span>';
+            } catch (e) {
+                status.innerHTML = '<span style="color:#f87171">✗ JSON 格式错误: ' + e.message + '</span>';
+            }
+        }
+
+        function validateJSON() {
+            try {
+                JSON.parse(input.value);
+                status.innerHTML = '<span style="color:#4ade80">✓ JSON 格式正确</span>';
+            } catch (e) {
+                status.innerHTML = '<span style="color:#f87171">✗ JSON 格式错误: ' + e.message + '</span>';
+            }
+        }
+
+        function clearAll() {
+            input.value = '';
+            outputText.textContent = '等待输入...';
+            status.innerHTML = '';
+        }
+
+        function copyResult() {
+            const text = outputText.textContent;
+            if (text && text !== '等待输入...') {
+                navigator.clipboard.writeText(text);
+                showToast('已复制到剪贴板');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2000);
+        }
+    </script>
+</body>
+</html>
