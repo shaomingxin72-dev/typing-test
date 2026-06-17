@@ -1,0 +1,26 @@
+{
+    "interval": 30,
+    "items": [
+        {
+            "name": "示例商品（请修改）",
+            "url": "https://example.com/product/123",
+            "in_stock_keywords": ["有货", "加入购物车", "立即购买", "In Stock"],
+            "out_of_stock_keywords": ["缺货", "售罄", "暂时缺货", "Out of Stock", "无货"],
+            "enabled": false
+        },
+        {
+            "name": "京东示例（请替换URL）",
+            "url": "https://item.jd.com/1000000000.html",
+            "in_stock_keywords": ["加入购物车", "立即购买"],
+            "out_of_stock_keywords": ["无货", "暂时缺货"],
+            "enabled": false
+        },
+        {
+            "name": "天猫示例（请替换URL）",
+            "url": "https://detail.tmall.com/item.htm?id=0000000000",
+            "in_stock_keywords": ["立即购买", "加入购物车"],
+            "out_of_stock_keywords": ["缺货", "此商品已下架"],
+            "enabled": false
+        }
+    ]
+}
