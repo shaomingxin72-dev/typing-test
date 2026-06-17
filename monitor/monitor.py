@@ -55,7 +55,12 @@ def log(message):
     """写入日志"""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = f"[{timestamp}] {message}"
-    print(line)
+    try:
+        print(line)
+    except UnicodeEncodeError:
+        # Windows 控制台兼容：去掉 emoji
+        safe_line = line.encode("gbk", errors="replace").decode("gbk")
+        print(safe_line)
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
